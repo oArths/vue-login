@@ -1,28 +1,24 @@
-<script setup lang="tsx">
-let name = "Arthur";
+<template>
+  <div id="app">
+    <router-view />
+  </div>
+</template>
+
+<script setup>
+import { onMounted } from "vue";
+import router from "./router";
+import { useAuthStore } from "./stores/auth";
+
+const auth = useAuthStore();
+
+onMounted(() => {
+  router.beforeEach((to, from, next) => {
+    if (to.meta.requiresAuth && !auth.isAuthenticated) {
+      next({ name: "Login" });
+    } else {
+      next();
+    }
+  });
+});
 </script>
 
-<template>
-  <main :class="$style.Main">
-    <aside :class="$style.Column">
-      ola
-    </aside>
-    <aside :class="$style.Column">
-      img
-    </aside>
-  </main>
-</template>
-<style lang="css" module>
-.Main {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-items: center;
-  width: 100%;
-  height: auto;
-}
-.Column{
-  width: 40%;
-  height: 100%;
-}
-</style>
