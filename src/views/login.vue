@@ -7,16 +7,18 @@
           Bem Vindo de Volta, faça login para continuar
         </h2>
         <inputForm
-          label="Nome"
-          placeholder="Digite seu Nome"
+          label="Email"
+          placeholder="Digite seu Email"
           type="text"
-          @update:value="UpdateValue"
+          v-model="formData.email"
+          :erro="ErroData.email"
         />
         <inputForm
           label="Senha"
           placeholder="Digite sua senha"
           type="password"
-          @update:value="UpdateValue"
+          v-model="formData.password"
+          :erro="ErroData.password"
         />
         <button :class="$style.Button" @click="logoutUser">Logout</button>
       </div>
@@ -31,18 +33,37 @@ import { ref } from "vue";
 import inputForm from "../components/inputForm.vue";
 import { useAuthStore } from "../stores/auth";
 import { useRouter } from "vue-router";
-const parentValue = ref("");
+import api from "../api/axios.ts";
 const auth = useAuthStore();
 const router = useRouter();
+const formData = ref({
+  email: "",
+  password: "",
+});
+const ErroData = ref({
+  email: "",
+  password: "",
+});
 
-function logoutUser() {
-  auth.login();
-  router.push({ name: "Home" });
-  return;
-}
-
-function UpdateValue(newValue: string) {
-  parentValue.value = newValue;
+async function logoutUser() {
+  try {
+    const res = await api.post("/signin", {
+      email: formData.value.email,
+      password: formData.value.password,
+    });
+    console.log(res.data);
+    auth.login();
+    router.push({ name: "Home" });
+  } catch (err) {
+    console.log(err.response?.data);
+    const data = err.response?.data;
+    if (data && data.error) {
+      ErroData.value.email = data.error.email ? data.error.email[0] : "";
+      ErroData.value.password = data.error.password
+        ? data.error.password[0]
+        : "";
+    }
+  }
 }
 </script>
 <style lang="css" module>
@@ -64,11 +85,12 @@ function UpdateValue(newValue: string) {
   justify-content: center;
   &:first-child {
     width: 40%;
+    min-width: 300px;
+    padding: 0px 20px;
     margin-top: 5%;
   }
-
 }
-.Warp{
+.Warp {
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -76,7 +98,6 @@ function UpdateValue(newValue: string) {
   width: auto;
   height: 100%;
   max-width: 350px;
-
 }
 .Imagem {
   border-radius: 10px;

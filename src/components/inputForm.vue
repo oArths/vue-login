@@ -4,29 +4,26 @@
     <input
       :class="$style.input"
       :type="type"
-      v-model="value"
+      :value="modelValue"
       :placeholder="placeholder"
-      @input="updateValue"
+      @input="$emit('update:modelValue', $event.target.value)"
     />
+    <p :class="$style.erro">{{ erro }}</p>
   </div>
 </template>
 
 <script setup lang="tsx">
-import { ref } from "vue";
+import { defineProps, defineEmits } from "vue";
 
-interface IInputForm {
-  label: string;
-  placeholder: string;
-  type: string;
-}
-
-const emit = defineEmits(["update:value"]);
-const value = ref("");
-
-function updateValue(event: Event) {
-  emit("update:value", value.value);
-}
-defineProps<IInputForm>();
+const props = defineProps({
+  modelValue: String,
+  label: String,
+  placeholder: String,
+  type: String,
+  erro: String,
+});
+// update:modelValue é padrão do vue em componentes personalizados emitir um evento com esse nome
+const emit = defineEmits(["update:modelValue"]);
 </script>
 
 <style lang="css" module>
@@ -35,7 +32,7 @@ defineProps<IInputForm>();
   flex-direction: column;
   align-items: start;
   gap: 10px;
-  width:100%;
+  width: 100%;
 }
 .label {
   font-size: 16px;
@@ -48,5 +45,11 @@ defineProps<IInputForm>();
   height: 30px;
   border-radius: 5px;
   padding: 5px 10px;
+}
+.erro {
+  font-size: 12px;
+  font-weight: 400;
+  height: 10px;
+  color: rgb(184, 43, 43);
 }
 </style>
